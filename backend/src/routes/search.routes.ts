@@ -1,7 +1,18 @@
 import { Router } from 'express';
 import Product from '../models/Product';
+import { advancedSearch, searchAutocomplete, getSearchTrending } from '../services/search.service';
+import { cacheMiddleware } from '../middleware/cache';
 
 const router = Router();
+
+// Advanced faceted search with AI relevance
+router.get('/advanced', cacheMiddleware(30), advancedSearch);
+
+// Smart autocomplete with products, categories, sellers
+router.get('/autocomplete', cacheMiddleware(10), searchAutocomplete);
+
+// Trending searches
+router.get('/trending', cacheMiddleware(60), getSearchTrending);
 
 router.get('/', async (req, res) => {
   try {

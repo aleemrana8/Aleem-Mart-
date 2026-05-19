@@ -8,6 +8,9 @@ import rateLimit from 'express-rate-limit';
 
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
+import { sanitizeInput, additionalSecurityHeaders } from './middleware/security';
+import { requestLogger, getMetrics } from './middleware/logger';
+import { generateCsrfToken } from './middleware/security';
 
 // Route imports
 import authRoutes from './routes/auth.routes';
@@ -31,6 +34,8 @@ import paymentRoutes from './routes/payment.routes';
 import recommendationRoutes from './routes/recommendation.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import aiRoutes from './routes/ai.routes';
+import loyaltyRoutes from './routes/loyalty.routes';
+import bulkRoutes from './routes/bulk.routes';
 
 const app = express();
 
@@ -55,10 +60,15 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(compression());
 
-// Logging
+// Structured logging & observability
+app.use(requestLogger);
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// Security hardening
+app.use(additionalSecurityHeaders);
+app.use(sanitizeInput);
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -82,11 +92,15 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/loyalty', loyaltyRoutes);
+app.use('/api/bulk', bulkRoutes);
 
-// Health check
+// Health check + Metrics + CSRF
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '2.0.0' });
 });
+app.get('/api/metrics', getMetrics);
+app.get('/api/csrf-token', generateCsrfToken);
 
 // Error handling
 app.use(notFound);
