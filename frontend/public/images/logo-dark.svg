@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <defs>
+    <linearGradient id="goldGradD" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5A623"/>
+      <stop offset="50%" stop-color="#E8930C"/>
+      <stop offset="100%" stop-color="#D4820A"/>
+    </linearGradient>
+    <linearGradient id="iconGradD" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB84D"/>
+      <stop offset="100%" stop-color="#E8930C"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon Mark -->
+  <g>
+    <path d="M28 65L44 15h4l16 50h-7l-4-13H39l-4 13h-7zm13-19h14l-7-22-7 22z" fill="url(#goldGradD)"/>
+    <path d="M52 52c6-2 12-1 17 3" stroke="url(#iconGradD)" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="71" cy="56" r="2.5" fill="#F5A623"/>
+    <circle cx="62" cy="48" r="1.5" fill="#F5A623" opacity="0.6"/>
+  </g>
+  <!-- Typography for light/white background -->
+  <text x="85" y="55" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="800" font-size="34" letter-spacing="-0.5">
+    <tspan fill="#0F1B2D">ALEEM</tspan><tspan fill="url(#goldGradD)" dx="4">MART</tspan>
+  </text>
+  <text x="86" y="70" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="400" font-size="9" fill="#5A6B7D" letter-spacing="2.5">SMART CHOICES. BETTER LIVING.</text>
+</svg>

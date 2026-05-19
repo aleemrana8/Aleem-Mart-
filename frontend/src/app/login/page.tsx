@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,12 +31,16 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/">
-            <h1 className="text-3xl font-bold">
-              <span className="text-primary">ALEEM</span> MART
-            </h1>
+          <Link href="/" className="inline-block">
+            <Image
+              src="/images/logo-dark.svg"
+              alt="Aleem Mart"
+              width={180}
+              height={50}
+              className="h-12 w-auto mx-auto"
+            />
           </Link>
-          <p className="text-gray-500 mt-2">Welcome back! Sign in to your account</p>
+          <p className="text-gray-500 mt-3">Welcome back! Sign in to your account</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border p-8">

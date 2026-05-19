@@ -37,9 +37,9 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="/images/logo.png"
+              src="/images/logo-dark.svg"
               alt="Aleem Mart"
-              width={140}
+              width={160}
               height={45}
               className="h-10 w-auto"
               priority

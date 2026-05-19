@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="p-6 border-b border-gray-700">
           <Link href="/admin">
             <Image
-              src="/images/logo.png"
+              src="/images/logo.svg"
               alt="Aleem Mart"
               width={130}
               height={40}

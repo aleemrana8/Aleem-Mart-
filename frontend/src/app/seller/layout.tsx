@@ -32,7 +32,7 @@ export default function SellerLayout({ children }: { children: ReactNode }) {
         <div className="p-6 border-b">
           <Link href="/">
             <Image
-              src="/images/logo.png"
+              src="/images/logo-dark.svg"
               alt="Aleem Mart"
               width={130}
               height={40}

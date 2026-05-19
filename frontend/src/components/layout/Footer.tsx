@@ -11,7 +11,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src="/images/logo.png"
+              src="/images/logo.svg"
               alt="Aleem Mart"
               width={160}
               height={50}
