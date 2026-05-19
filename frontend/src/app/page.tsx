@@ -7,6 +7,8 @@ import { NewArrivals } from '@/components/home/NewArrivals';
 import { FlashSale } from '@/components/home/FlashSale';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { Newsletter } from '@/components/home/Newsletter';
+import { AIRecommendations } from '@/components/home/AIRecommendations';
+import { TrendingNow } from '@/components/home/TrendingNow';
 import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
 
 export default function HomePage() {
@@ -17,8 +19,10 @@ export default function HomePage() {
       <main className="flex-1">
         <HeroSection />
         <CategoryGrid />
-        <BestSellers />
+        <AIRecommendations />
         <FlashSale />
+        <TrendingNow />
+        <BestSellers />
         <NewArrivals />
         <WhyChooseUs />
         <Newsletter />

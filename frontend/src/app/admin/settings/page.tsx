@@ -62,11 +62,11 @@ export default function AdminSettingsPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Support Email</label>
-                  <Input defaultValue="support@aleemmart.com" />
+                  <Input defaultValue="raleem811811@gmail.com" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Support Phone</label>
-                  <Input defaultValue="+92-300-1234567" />
+                  <Input defaultValue="+92-315-1664843" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">Default Currency</label>

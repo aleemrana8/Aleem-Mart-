@@ -67,15 +67,15 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2">
                 <Mail size={16} className="text-primary" />
-                support@aleemmart.com
+                raleem811811@gmail.com
               </li>
               <li className="flex items-center gap-2">
                 <Phone size={16} className="text-primary" />
-                +92 300 1234567
+                +92 315 1664843
               </li>
               <li className="flex items-start gap-2">
                 <MapPin size={16} className="text-primary mt-0.5" />
-                Lahore, Pakistan
+                Hostel City, Park Road, Islamabad
               </li>
             </ul>
           </div>

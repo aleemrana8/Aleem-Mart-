@@ -28,6 +28,9 @@ import messageRoutes from './routes/message.routes';
 import bannerRoutes from './routes/banner.routes';
 import searchRoutes from './routes/search.routes';
 import paymentRoutes from './routes/payment.routes';
+import recommendationRoutes from './routes/recommendation.routes';
+import analyticsRoutes from './routes/analytics.routes';
+import aiRoutes from './routes/ai.routes';
 
 const app = express();
 
@@ -76,6 +79,9 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

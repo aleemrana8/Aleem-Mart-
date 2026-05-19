@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { User, MapPin, Package, Heart, Bell, LogOut, Save, Plus, Trash2, Edit2 } from 'lucide-react';
 
 const addresses = [
-  { id: '1', label: 'Home', fullName: 'Muhammad Aleem', phone: '+92-300-1234567', street: 'House 45, Street 12, Block G', city: 'Lahore', state: 'Punjab', country: 'Pakistan', postalCode: '54000', isDefault: true },
-  { id: '2', label: 'Office', fullName: 'Muhammad Aleem', phone: '+92-321-9876543', street: 'Office 302, Business Tower', city: 'Lahore', state: 'Punjab', country: 'Pakistan', postalCode: '54660', isDefault: false },
+  { id: '1', label: 'Home', fullName: 'Muhammad Aleem', phone: '+92-315-1664843', street: 'Hostel City, Park Road', city: 'Islamabad', state: 'ICT', country: 'Pakistan', postalCode: '44000', isDefault: true },
+  { id: '2', label: 'Office', fullName: 'Muhammad Aleem', phone: '+92-315-1664843', street: 'Hostel City, Park Road', city: 'Islamabad', state: 'ICT', country: 'Pakistan', postalCode: '44000', isDefault: false },
 ];
 
 const tabs = [
