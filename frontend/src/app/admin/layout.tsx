@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, Store, Package, ShoppingCart, Tags,
-  Image, BarChart3, Settings, MessageSquare, Bell, Shield, Percent
+  ImageIcon, BarChart3, Settings, MessageSquare, Bell, Shield, Percent
 } from 'lucide-react';
 
 const adminNav = [
@@ -17,7 +17,7 @@ const adminNav = [
   { label: 'Categories', href: '/admin/categories', icon: Tags },
   { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },
   { label: 'Coupons', href: '/admin/coupons', icon: Percent },
-  { label: 'Banners', href: '/admin/banners', icon: Image },
+  { label: 'Banners', href: '/admin/banners', icon: ImageIcon },
   { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { label: 'Notifications', href: '/admin/notifications', icon: Bell },
   { label: 'Settings', href: '/admin/settings', icon: Settings },

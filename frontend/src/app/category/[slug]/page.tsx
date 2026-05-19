@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import ProductCard from '@/components/shared/ProductCard';
+import { ProductCard } from '@/components/shared/ProductCard';
 import { SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,12 +15,12 @@ const categories: Record<string, { name: string; description: string }> = {
 };
 
 const products = [
-  { id: '1', title: 'Wireless Earbuds Pro X100', price: 5499, comparePrice: 7999, rating: 4.5, totalReviews: 128, image: '/placeholder.jpg', slug: 'wireless-earbuds-pro-x100', store: 'TechZone' },
-  { id: '2', title: 'Smart Watch X200', price: 11999, comparePrice: 14999, rating: 4.7, totalReviews: 89, image: '/placeholder.jpg', slug: 'smart-watch-x200', store: 'TechZone' },
-  { id: '3', title: 'Bluetooth Speaker Mini', price: 3999, comparePrice: 5499, rating: 4.3, totalReviews: 56, image: '/placeholder.jpg', slug: 'bluetooth-speaker-mini', store: 'AudioMax' },
-  { id: '4', title: 'USB-C Hub 7-in-1', price: 2999, comparePrice: 4499, rating: 4.6, totalReviews: 234, image: '/placeholder.jpg', slug: 'usb-c-hub-7-in-1', store: 'TechZone' },
-  { id: '5', title: 'Laptop Stand Adjustable', price: 2999, comparePrice: 3999, rating: 4.4, totalReviews: 67, image: '/placeholder.jpg', slug: 'laptop-stand-adjustable', store: 'HomeDecor' },
-  { id: '6', title: 'Gaming Mouse RGB Pro', price: 3499, comparePrice: 4999, rating: 4.8, totalReviews: 312, image: '/placeholder.jpg', slug: 'gaming-mouse-rgb', store: 'GamersParadise' },
+  { id: '1', title: 'Wireless Earbuds Pro X100', price: 5499, comparePrice: 7999, rating: 4.5, totalReviews: 128, images: ['/placeholder.jpg'], slug: 'wireless-earbuds-pro-x100', store: { name: 'TechZone', slug: 'techzone' } },
+  { id: '2', title: 'Smart Watch X200', price: 11999, comparePrice: 14999, rating: 4.7, totalReviews: 89, images: ['/placeholder.jpg'], slug: 'smart-watch-x200', store: { name: 'TechZone', slug: 'techzone' } },
+  { id: '3', title: 'Bluetooth Speaker Mini', price: 3999, comparePrice: 5499, rating: 4.3, totalReviews: 56, images: ['/placeholder.jpg'], slug: 'bluetooth-speaker-mini', store: { name: 'AudioMax', slug: 'audiomax' } },
+  { id: '4', title: 'USB-C Hub 7-in-1', price: 2999, comparePrice: 4499, rating: 4.6, totalReviews: 234, images: ['/placeholder.jpg'], slug: 'usb-c-hub-7-in-1', store: { name: 'TechZone', slug: 'techzone' } },
+  { id: '5', title: 'Laptop Stand Adjustable', price: 2999, comparePrice: 3999, rating: 4.4, totalReviews: 67, images: ['/placeholder.jpg'], slug: 'laptop-stand-adjustable', store: { name: 'HomeDecor', slug: 'homedecor' } },
+  { id: '6', title: 'Gaming Mouse RGB Pro', price: 3499, comparePrice: 4999, rating: 4.8, totalReviews: 312, images: ['/placeholder.jpg'], slug: 'gaming-mouse-rgb', store: { name: 'GamersParadise', slug: 'gamersparadise' } },
 ];
 
 export default function CategoryPage() {
