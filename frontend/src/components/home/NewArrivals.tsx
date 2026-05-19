@@ -52,19 +52,18 @@ const newProducts = [
 
 export function NewArrivals() {
   return (
-    <section className="py-12 bg-white">
-      <div className="container-custom">
+    <section className="py-12">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">New Arrivals</h2>
-            <p className="text-gray-500 mt-1">Fresh products just added to our marketplace</p>
+            <h2 className="text-xl md:text-2xl font-bold text-foreground">New Arrivals</h2>
+            <p className="text-sm text-muted-foreground mt-1">Fresh products just added</p>
           </div>
-          <Link href="/new-arrivals" className="text-primary font-medium hover:underline text-sm">
+          <Link href="/new-arrivals" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
             View All →
           </Link>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {newProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

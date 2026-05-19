@@ -4,43 +4,43 @@ import Link from 'next/link';
 import { Smartphone, Shirt, Home, Sparkles, Gamepad2, Laptop, Watch, Headphones } from 'lucide-react';
 
 const categories = [
-  { name: 'Electronics', slug: 'electronics', icon: Smartphone, color: 'bg-blue-50 text-blue-600' },
-  { name: 'Fashion', slug: 'fashion', icon: Shirt, color: 'bg-pink-50 text-pink-600' },
-  { name: 'Home & Living', slug: 'home-living', icon: Home, color: 'bg-green-50 text-green-600' },
-  { name: 'Beauty', slug: 'beauty', icon: Sparkles, color: 'bg-purple-50 text-purple-600' },
-  { name: 'Gaming', slug: 'gaming', icon: Gamepad2, color: 'bg-red-50 text-red-600' },
-  { name: 'Laptops', slug: 'laptops', icon: Laptop, color: 'bg-indigo-50 text-indigo-600' },
-  { name: 'Watches', slug: 'watches', icon: Watch, color: 'bg-amber-50 text-amber-600' },
-  { name: 'Audio', slug: 'audio', icon: Headphones, color: 'bg-cyan-50 text-cyan-600' },
+  { name: 'Electronics', slug: 'electronics', icon: Smartphone, gradient: 'from-blue-500/10 to-blue-600/5' },
+  { name: 'Fashion', slug: 'fashion', icon: Shirt, gradient: 'from-pink-500/10 to-pink-600/5' },
+  { name: 'Home & Living', slug: 'home-living', icon: Home, gradient: 'from-green-500/10 to-green-600/5' },
+  { name: 'Beauty', slug: 'beauty', icon: Sparkles, gradient: 'from-purple-500/10 to-purple-600/5' },
+  { name: 'Gaming', slug: 'gaming', icon: Gamepad2, gradient: 'from-red-500/10 to-red-600/5' },
+  { name: 'Laptops', slug: 'laptops', icon: Laptop, gradient: 'from-indigo-500/10 to-indigo-600/5' },
+  { name: 'Watches', slug: 'watches', icon: Watch, gradient: 'from-amber-500/10 to-amber-600/5' },
+  { name: 'Audio', slug: 'audio', icon: Headphones, gradient: 'from-cyan-500/10 to-cyan-600/5' },
 ];
 
 export function CategoryGrid() {
   return (
-    <section className="py-12 bg-white">
-      <div className="container-custom">
+    <section className="py-12">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Shop by Category</h2>
-            <p className="text-gray-500 mt-1">Browse our wide selection of categories</p>
+            <h2 className="text-xl md:text-2xl font-bold text-foreground">Shop by Category</h2>
+            <p className="text-sm text-muted-foreground mt-1">Browse our wide selection</p>
           </div>
-          <Link href="/categories" className="text-primary font-medium hover:underline text-sm">
+          <Link href="/categories" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
             View All →
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {categories.map((cat) => {
             const Icon = cat.icon;
             return (
               <Link
                 key={cat.slug}
                 href={`/category/${cat.slug}`}
-                className="group flex flex-col items-center p-4 rounded-2xl hover:shadow-md transition-all duration-200 border border-transparent hover:border-gray-200"
+                className="group flex flex-col items-center p-4 rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-card-hover transition-all duration-300"
               >
-                <div className={`p-4 rounded-2xl ${cat.color} mb-3 group-hover:scale-110 transition-transform`}>
-                  <Icon size={28} />
+                <div className={`p-3.5 rounded-xl bg-gradient-to-br ${cat.gradient} mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon size={24} className="text-foreground" />
                 </div>
-                <span className="text-sm font-medium text-gray-700 text-center">{cat.name}</span>
+                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground text-center transition-colors">{cat.name}</span>
               </Link>
             );
           })}
