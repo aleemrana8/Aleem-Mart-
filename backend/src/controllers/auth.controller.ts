@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import User from '../models/User';
 import { generateToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email';
+import { sendVerificationEmail, sendPasswordResetEmail, sendEmail } from '../utils/email';
 import { AuthRequest } from '../middleware/auth';
 
 export const register = async (req: Request, res: Response) => {
@@ -225,5 +225,126 @@ export const verifyEmail = async (req: Request, res: Response) => {
     res.json({ success: true, message: 'Email verified successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Verification failed' });
+  }
+};
+
+export const resendVerification = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email }).select('+verificationToken');
+
+    if (!user) {
+      return res.json({ success: true, message: 'If email exists, verification sent' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ success: false, message: 'Email already verified' });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    user.verificationToken = verificationToken;
+    await user.save();
+
+    await sendVerificationEmail(email, verificationToken);
+
+    res.json({ success: true, message: 'Verification email sent' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to resend verification' });
+  }
+};
+
+export const sendLoginOTP = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'No account with this email' });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: 'Account suspended' });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.verificationToken = crypto.createHash('sha256').update(otp).digest('hex');
+    user.resetPasswordExpire = otpExpire; // Reuse this field for OTP expiry
+    await user.save();
+
+    await sendEmail({
+      to: email,
+      subject: 'Your Login Code - Aleem Mart',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h1 style="color: #1a1a2e; margin-bottom: 10px;">Login Verification</h1>
+          <p style="color: #555; margin-bottom: 24px;">Your one-time login code is:</p>
+          <div style="background: #f8f9fa; border: 2px solid #e94560; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #1a1a2e;">${otp}</span>
+          </div>
+          <p style="color: #666; font-size: 14px;">This code expires in 10 minutes. Do not share it with anyone.</p>
+          <p style="color: #999; font-size: 12px; margin-top: 20px;">If you didn't request this, someone may be trying to access your account.</p>
+        </div>
+      `,
+    });
+
+    res.json({ success: true, message: 'OTP sent to your email' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to send OTP' });
+  }
+};
+
+export const verifyLoginOTP = async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+    const hashedOTP = crypto.createHash('sha256').update(otp).digest('hex');
+
+    const user = await User.findOne({
+      email,
+      verificationToken: hashedOTP,
+      resetPasswordExpire: { $gt: Date.now() },
+    }).select('+verificationToken +resetPasswordExpire');
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    // Clear OTP fields
+    user.verificationToken = undefined;
+    user.resetPasswordExpire = undefined;
+    user.isVerified = true;
+    user.lastLogin = new Date();
+
+    const token = generateToken(user._id.toString());
+    const refreshToken = generateRefreshToken(user._id.toString());
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          isVerified: user.isVerified,
+        },
+        token,
+        refreshToken,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'OTP verification failed' });
   }
 };

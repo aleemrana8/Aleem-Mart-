@@ -2,11 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Eye, EyeOff, Mail, Lock, User, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function RegisterPage() {
@@ -14,6 +11,7 @@ export default function RegisterPage() {
   const { register, isLoading } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -31,40 +29,53 @@ export default function RegisterPage() {
     }
     try {
       await register(formData);
-      router.push('/');
+      setSuccess(true);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
     }
   };
 
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="w-full max-w-sm text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
+            <CheckCircle size={32} className="text-success" />
+          </div>
+          <h1 className="text-xl font-bold text-foreground">Check Your Email</h1>
+          <p className="text-sm text-muted-foreground">
+            We sent a verification link to <strong className="text-foreground">{formData.email}</strong>. Click the link to verify your account.
+          </p>
+          <Link href="/login" className="btn-premium inline-flex px-6 py-3 text-sm font-semibold mt-4">
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
-            <Image
-              src="/images/logo-dark.svg"
-              alt="Aleem Mart"
-              width={180}
-              height={50}
-              className="h-12 w-auto mx-auto"
-            />
+          <Link href="/" className="inline-block text-2xl font-bold text-foreground">
+            Aleem Mart
           </Link>
-          <p className="text-gray-500 mt-3">Create your account to start shopping</p>
+          <p className="text-sm text-muted-foreground mt-2">Create your account to start shopping</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border p-8">
+        <div className="rounded-2xl border border-border/50 p-8">
           {error && (
-            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>
+            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-xl mb-4">{error}</div>
           )}
 
           {/* Role Selection */}
-          <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-lg">
+          <div className="flex gap-1 bg-muted/30 p-1 rounded-xl mb-6">
             <button
               type="button"
               onClick={() => setFormData({ ...formData, role: 'buyer' })}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition ${
-                formData.role === 'buyer' ? 'bg-white shadow text-gray-900' : 'text-gray-500'
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                formData.role === 'buyer' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'
               }`}
             >
               Buyer
@@ -72,8 +83,8 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setFormData({ ...formData, role: 'seller' })}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition ${
-                formData.role === 'seller' ? 'bg-white shadow text-gray-900' : 'text-gray-500'
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                formData.role === 'seller' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'
               }`}
             >
               Seller
@@ -83,73 +94,51 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">First Name</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">First Name</label>
                 <div className="relative">
-                  <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    placeholder="John"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="pl-10"
-                    required
-                  />
+                  <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input placeholder="John" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="input-premium pl-9" required />
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Last Name</label>
-                <Input
-                  placeholder="Doe"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  required
-                />
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Last Name</label>
+                <input placeholder="Doe" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="input-premium" required />
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Email</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Email</label>
               <div className="relative">
-                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="pl-10"
-                  required
-                />
+                <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input type="email" placeholder="you@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="input-premium pl-9" required />
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Password</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Password</label>
               <div className="relative">
-                <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <Input
+                <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Minimum 8 characters"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="pl-10 pr-10"
+                  className="input-premium pl-9 pr-10"
                   required
                   minLength={8}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating account...' : `Create ${formData.role === 'seller' ? 'Seller' : ''} Account`}
-            </Button>
+            <button type="submit" disabled={isLoading} className="w-full btn-premium py-3 text-sm font-semibold">
+              {isLoading ? 'Creating account...' : `Create ${formData.role === 'seller' ? 'Seller ' : ''}Account`}
+            </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/login" className="text-primary font-medium hover:underline">
               Sign in
