@@ -45,3 +45,20 @@ export const authorize = (...roles: string[]) => {
     next();
   };
 };
+
+export const optionalProtect = async (req: AuthRequest, _res: Response, next: NextFunction) => {
+  let token: string | undefined;
+  if (req.headers.authorization?.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies?.token) {
+    token = req.cookies.token;
+  }
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+      const user = await User.findById(decoded.id);
+      if (user && user.isActive) req.user = user;
+    } catch {}
+  }
+  next();
+};

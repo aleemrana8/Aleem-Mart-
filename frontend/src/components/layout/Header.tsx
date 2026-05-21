@@ -1,15 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ThemeToggleCompact } from '@/components/ui/ThemeToggle';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useCartStore } from '@/store/useCartStore';
+import api from '@/lib/api';
 import {
   Search, Heart, ShoppingCart, User, Menu, X, ChevronDown,
   ChevronRight, MapPin, Headphones, Package, Sparkles,
   Smartphone, Shirt, Home, Palette, Gamepad2, Dumbbell,
-  Gift, Zap, TrendingUp
+  Gift, Zap, TrendingUp, Star, Tag
 } from 'lucide-react';
 
 const categories = [
@@ -88,12 +93,49 @@ const categories = [
 ];
 
 export function Header() {
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuthStore();
+  const { totalItems } = useCartStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState<string | null>(null);
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [suggestions, setSuggestions] = useState<any>(null);
+  const [trendingSearches, setTrendingSearches] = useState<any[]>([]);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const megaMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchFocused(false);
+      setSuggestions(null);
+    }
+  };
+
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setSuggestions(null);
+      return;
+    }
+    try {
+      const { data } = await api.get(`/search/autocomplete?q=${encodeURIComponent(query)}`);
+      if (data.success) setSuggestions(data.data);
+    } catch { setSuggestions(null); }
+  }, []);
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchSuggestions(value), 300);
+  };
+
+  useEffect(() => {
+    api.get('/search/trending').then(({ data }) => {
+      if (data.success) setTrendingSearches(data.data.trending || []);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -174,12 +216,13 @@ export function Header() {
                   type="text"
                   placeholder="Search products, brands, categories..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
                   className="flex-1 h-11 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground"
                 />
-                <button className="m-1 px-4 h-9 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-sm font-medium transition-colors flex items-center gap-1.5">
+                <button onClick={handleSearch} className="m-1 px-4 h-9 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-sm font-medium transition-colors flex items-center gap-1.5">
                   <Search size={14} />
                   <span className="hidden lg:inline">Search</span>
                 </button>
@@ -195,24 +238,91 @@ export function Header() {
                     transition={{ duration: 0.15 }}
                     className="absolute top-full left-0 right-0 mt-2 bg-background rounded-2xl border border-border/60 shadow-premium-lg p-3 z-50"
                   >
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 mb-2">Trending</p>
-                        <div className="space-y-0.5">
-                          {['iPhone 15 Pro Max', 'Samsung Galaxy S24', 'Gaming Laptop', 'Wireless Earbuds'].map((item, i) => (
-                            <Link
-                              key={item}
-                              href={`/search?q=${encodeURIComponent(item)}`}
-                              className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted/60 transition-colors"
-                            >
-                              <TrendingUp size={14} className="text-primary" />
-                              <span className="text-sm text-foreground">{item}</span>
-                              <span className="ml-auto text-[10px] text-muted-foreground">#{i + 1}</span>
-                            </Link>
-                          ))}
+                    {suggestions && suggestions.products?.length > 0 ? (
+                      <div className="space-y-3">
+                        {/* Product Results */}
+                        {suggestions.products.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 mb-2">Products</p>
+                            <div className="space-y-0.5">
+                              {suggestions.products.map((product: any) => (
+                                <Link
+                                  key={product.id}
+                                  href={`/product/${product.slug}`}
+                                  className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted/60 transition-colors"
+                                >
+                                  {product.image ? (
+                                    <Image src={product.image} alt="" width={32} height={32} className="w-8 h-8 rounded-lg object-cover" />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                                      <Package size={14} className="text-muted-foreground" />
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-foreground truncate">{product.name}</p>
+                                    <p className="text-xs text-primary font-medium">Rs. {product.price?.toLocaleString()}</p>
+                                  </div>
+                                  {product.rating > 0 && (
+                                    <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                                      <Star size={10} className="fill-amber-400 text-amber-400" />
+                                      {product.rating}
+                                    </div>
+                                  )}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {/* Category Results */}
+                        {suggestions.categories?.length > 0 && (
+                          <div className="border-t border-border/50 pt-2">
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 mb-2">Categories</p>
+                            <div className="flex flex-wrap gap-1.5 px-2">
+                              {suggestions.categories.map((cat: any) => (
+                                <Link
+                                  key={cat.slug}
+                                  href={`/shop?category=${cat.slug}`}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/5 hover:bg-primary/10 text-sm text-primary transition-colors"
+                                >
+                                  <Tag size={12} />
+                                  {cat.name}
+                                  <span className="text-[10px] text-muted-foreground">({cat.count})</span>
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {/* Search All Link */}
+                        <div className="border-t border-border/50 pt-2">
+                          <Link
+                            href={`/shop?q=${encodeURIComponent(searchQuery)}`}
+                            className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-muted/60 transition-colors text-sm text-primary font-medium"
+                          >
+                            <Search size={14} />
+                            See all results for &ldquo;{searchQuery}&rdquo;
+                          </Link>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 mb-2">Trending Searches</p>
+                          <div className="space-y-0.5">
+                            {trendingSearches.slice(0, 6).map((item, i) => (
+                              <Link
+                                key={item.query}
+                                href={`/shop?q=${encodeURIComponent(item.query)}`}
+                                className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted/60 transition-colors"
+                              >
+                                <TrendingUp size={14} className="text-primary" />
+                                <span className="text-sm text-foreground capitalize">{item.query}</span>
+                                <span className="ml-auto text-[10px] text-muted-foreground">#{i + 1}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -228,9 +338,6 @@ export function Header() {
               className="relative p-2.5 rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors hidden sm:flex"
             >
               <Heart size={20} />
-              <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                0
-              </span>
             </Link>
 
             <Link
@@ -238,21 +345,38 @@ export function Header() {
               className="relative p-2.5 rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ShoppingCart size={20} />
-              <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                0
-              </span>
+              {totalItems > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {totalItems > 9 ? '9+' : totalItems}
+                </span>
+              )}
             </Link>
 
-            <Link
-              href="/login"
-              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <User size={18} />
-              <div className="hidden lg:block text-left">
-                <p className="text-[10px] leading-none text-muted-foreground">Hello, Sign in</p>
-                <p className="text-xs font-semibold text-foreground">Account</p>
-              </div>
-            </Link>
+            {isAuthenticated && user ? (
+              <Link
+                href="/account"
+                className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-brand-orange flex items-center justify-center text-white text-[10px] font-bold">
+                  {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                </div>
+                <div className="hidden lg:block text-left">
+                  <p className="text-[10px] leading-none text-muted-foreground">Hello, {user.firstName || 'User'}</p>
+                  <p className="text-xs font-semibold text-foreground">Account</p>
+                </div>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <User size={18} />
+                <div className="hidden lg:block text-left">
+                  <p className="text-[10px] leading-none text-muted-foreground">Hello, Sign in</p>
+                  <p className="text-xs font-semibold text-foreground">Account</p>
+                </div>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -308,7 +432,7 @@ export function Header() {
                           {cat.subcategories.map((sub) => (
                             <Link
                               key={sub.slug}
-                              href={`/category/${cat.slug}/${sub.slug}`}
+                              href={`/shop?category=${cat.slug}`}
                               className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/60 transition-colors group"
                               onClick={() => setMegaMenuOpen(null)}
                             >
@@ -319,7 +443,7 @@ export function Header() {
                         </div>
                         <div className="border-t border-border/50 pt-3">
                           <Link
-                            href={`/category/${cat.slug}`}
+                            href={`/shop?category=${cat.slug}`}
                             className="flex items-center justify-between px-3 py-2 rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors"
                             onClick={() => setMegaMenuOpen(null)}
                           >
@@ -340,14 +464,14 @@ export function Header() {
               );
             })}
             <li className="ml-auto flex items-center gap-3">
-              <Link href="/deals" className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-primary/10 transition-colors">
+              <Link href="/shop?sort=-discount" className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-primary/10 transition-colors">
                 <Zap size={14} />
                 Deals
               </Link>
-              <Link href="/seller/register" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/seller" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Sell on Aleem Mart
               </Link>
-              <Link href="/help" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/shop" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <Headphones size={14} />
                 Help
               </Link>
@@ -372,7 +496,7 @@ export function Header() {
                 return (
                   <Link
                     key={cat.slug}
-                    href={`/category/${cat.slug}`}
+                    href={`/shop?category=${cat.slug}`}
                     className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-muted/60 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -385,7 +509,7 @@ export function Header() {
                 );
               })}
               <div className="border-t border-border/50 pt-3 mt-3 space-y-1">
-                <Link href="/deals" className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-muted/60" onClick={() => setIsMenuOpen(false)}>
+                <Link href="/shop?sort=-discount" className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-muted/60" onClick={() => setIsMenuOpen(false)}>
                   <div className="p-2 rounded-lg bg-primary/10 text-primary"><Zap size={16} /></div>
                   <span className="font-medium text-primary">Deals & Offers</span>
                 </Link>

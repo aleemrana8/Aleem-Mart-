@@ -1,56 +1,21 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ProductCard } from '@/components/shared/ProductCard';
-
-const newProducts = [
-  {
-    id: '5',
-    title: 'Gaming Mechanical Keyboard RGB',
-    slug: 'gaming-mechanical-keyboard-rgb',
-    images: ['/placeholder-product.jpg'],
-    price: 7999,
-    comparePrice: 12999,
-    rating: 4.4,
-    totalReviews: 67,
-    store: { name: 'GamersHub', slug: 'gamershub' },
-  },
-  {
-    id: '6',
-    title: 'Minimalist Leather Wallet',
-    slug: 'minimalist-leather-wallet',
-    images: ['/placeholder-product.jpg'],
-    price: 1999,
-    comparePrice: 3499,
-    rating: 4.2,
-    totalReviews: 45,
-    store: { name: 'StyleCraft', slug: 'stylecraft' },
-  },
-  {
-    id: '7',
-    title: 'Portable Bluetooth Speaker',
-    slug: 'portable-bluetooth-speaker',
-    images: ['/placeholder-product.jpg'],
-    price: 3499,
-    comparePrice: 5999,
-    rating: 4.5,
-    totalReviews: 128,
-    store: { name: 'AudioMax', slug: 'audiomax' },
-  },
-  {
-    id: '8',
-    title: 'Yoga Mat Premium Non-Slip',
-    slug: 'yoga-mat-premium-non-slip',
-    images: ['/placeholder-product.jpg'],
-    price: 2999,
-    comparePrice: 4999,
-    rating: 4.8,
-    totalReviews: 201,
-    store: { name: 'FitLife', slug: 'fitlife' },
-  },
-];
+import { Loader2 } from 'lucide-react';
+import api from '@/lib/api';
 
 export function NewArrivals() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/products/new-arrivals').then(({ data }) => {
+      setProducts(data.data?.slice(0, 4) || []);
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
   return (
     <section className="py-12">
       <div className="max-w-7xl mx-auto px-4 lg:px-6">
@@ -59,15 +24,29 @@ export function NewArrivals() {
             <h2 className="text-xl md:text-2xl font-bold text-foreground">New Arrivals</h2>
             <p className="text-sm text-muted-foreground mt-1">Fresh products just added</p>
           </div>
-          <Link href="/new-arrivals" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+          <Link href="/shop?sort=-createdAt" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
             View All →
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {newProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-primary" /></div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {products.map((product: any) => (
+              <ProductCard key={product._id} product={{
+                id: product._id,
+                title: product.title,
+                slug: product.slug,
+                images: product.images,
+                price: product.price,
+                comparePrice: product.comparePrice,
+                rating: product.rating,
+                totalReviews: product.totalReviews,
+                store: product.store || { name: 'Aleem Mart', slug: 'aleem-mart-official' },
+              }} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

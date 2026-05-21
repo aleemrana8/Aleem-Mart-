@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { cacheMiddleware } from '../middleware/cache';
+import Product from '../models/Product';
 
 /**
  * Enhanced Search Service
@@ -108,34 +109,56 @@ export async function searchAutocomplete(req: Request, res: Response) {
   const query = (q as string).trim().toLowerCase();
 
   if (query.length < 2) {
-    return res.json({ success: true, data: { suggestions: [] } });
+    return res.json({ success: true, data: { suggestions: [], products: [], categories: [] } });
   }
 
-  // Production: Elasticsearch completion suggester + popularity weighting
-  const suggestions = {
-    success: true,
-    data: {
-      query,
-      suggestions: [
-        { type: 'query', text: `${query}`, highlight: query, popularity: 89 },
-        { type: 'query', text: `${query} wireless`, highlight: query, popularity: 67 },
-        { type: 'query', text: `${query} premium`, highlight: query, popularity: 45 },
+  try {
+    // Search real products from database
+    const products = await Product.find({
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { brand: { $regex: query, $options: 'i' } },
+        { 'category.name': { $regex: query, $options: 'i' } },
       ],
-      products: [
-        { id: '1', name: `${query.charAt(0).toUpperCase() + query.slice(1)} Pro X100`, price: 5499, image: null, rating: 4.8 },
-        { id: '2', name: `${query.charAt(0).toUpperCase() + query.slice(1)} Max Ultra`, price: 8999, image: null, rating: 4.6 },
-      ],
-      categories: [
-        { name: 'Electronics', slug: 'electronics', count: 234 },
-        { name: 'Audio', slug: 'audio', count: 89 },
-      ],
-      sellers: [
-        { name: 'TechZone Official', slug: 'techzone', products: 145 },
-      ],
-    },
-  };
+      isActive: true,
+    })
+      .select('title slug price salePrice images rating')
+      .limit(5)
+      .lean();
 
-  res.json(suggestions);
+    // Get matching categories
+    const categories = await Product.aggregate([
+      { $match: { 'category.name': { $regex: query, $options: 'i' }, isActive: true } },
+      { $group: { _id: '$category.name', slug: { $first: '$category.slug' }, count: { $sum: 1 } } },
+      { $project: { name: '$_id', slug: 1, count: 1, _id: 0 } },
+      { $limit: 3 },
+    ]);
+
+    // Generate query suggestions
+    const suggestions = [
+      { type: 'query', text: query, popularity: 90 },
+      ...products.slice(0, 2).map((p: any) => ({ type: 'product', text: p.title, popularity: 70 })),
+    ];
+
+    res.json({
+      success: true,
+      data: {
+        query,
+        suggestions,
+        products: products.map((p: any) => ({
+          id: p._id,
+          slug: p.slug,
+          name: p.title,
+          price: p.salePrice || p.price,
+          image: p.images?.[0] || null,
+          rating: p.rating || 0,
+        })),
+        categories,
+      },
+    });
+  } catch (error) {
+    res.json({ success: true, data: { suggestions: [], products: [], categories: [] } });
+  }
 }
 
 export async function getSearchTrending(_req: Request, res: Response) {

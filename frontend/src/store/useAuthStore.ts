@@ -58,10 +58,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const { data } = await api.post('/auth/register', registerData);
       const { user, token, refreshToken } = data.data;
-
       localStorage.setItem('token', token);
       localStorage.setItem('refreshToken', refreshToken);
-
       set({ user, token, isAuthenticated: true, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -75,7 +73,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, token: null, isAuthenticated: false });
   },
 
-  setUser: (user: User) => set({ user, isAuthenticated: true }),
+  setUser: (user: User) => {
+    const token = localStorage.getItem('token');
+    set({ user, token, isAuthenticated: true });
+  },
 
   checkAuth: async () => {
     const token = localStorage.getItem('token');

@@ -15,7 +15,7 @@ export function Footer() {
               <h3 className="text-lg font-semibold text-white">Start Selling on Aleem Mart</h3>
               <p className="text-sm text-neutral-400">Join 500+ sellers and reach millions of customers</p>
             </div>
-            <Link href="/seller/register" className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium text-sm transition-colors">
+            <Link href="/seller" className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium text-sm transition-colors">
               Get Started <ArrowRight size={16} />
             </Link>
           </div>
@@ -64,11 +64,11 @@ export function Footer() {
             <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Shop</h3>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/shop" className="hover:text-primary transition-colors">All Products</Link></li>
-              <li><Link href="/deals" className="hover:text-primary transition-colors">Deals & Offers</Link></li>
-              <li><Link href="/new-arrivals" className="hover:text-primary transition-colors">New Arrivals</Link></li>
-              <li><Link href="/best-sellers" className="hover:text-primary transition-colors">Best Sellers</Link></li>
-              <li><Link href="/brands" className="hover:text-primary transition-colors">Brands</Link></li>
-              <li><Link href="/gift-cards" className="hover:text-primary transition-colors">Gift Cards</Link></li>
+              <li><Link href="/shop?sort=-discount" className="hover:text-primary transition-colors">Deals & Offers</Link></li>
+              <li><Link href="/shop?sort=-createdAt" className="hover:text-primary transition-colors">New Arrivals</Link></li>
+              <li><Link href="/shop?sort=-totalSold" className="hover:text-primary transition-colors">Best Sellers</Link></li>
+              <li><Link href="/shop?category=electronics" className="hover:text-primary transition-colors">Electronics</Link></li>
+              <li><Link href="/shop?category=fashion" className="hover:text-primary transition-colors">Fashion</Link></li>
             </ul>
           </div>
 
@@ -76,12 +76,12 @@ export function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Support</h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/help" className="hover:text-primary transition-colors">Help Center</Link></li>
-              <li><Link href="/returns" className="hover:text-primary transition-colors">Returns & Refunds</Link></li>
-              <li><Link href="/shipping" className="hover:text-primary transition-colors">Shipping Info</Link></li>
-              <li><Link href="/track-order" className="hover:text-primary transition-colors">Track Order</Link></li>
-              <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Help Center</Link></li>
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Returns & Refunds</Link></li>
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Shipping Info</Link></li>
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Track Order</Link></li>
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/shop" className="hover:text-primary transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
 

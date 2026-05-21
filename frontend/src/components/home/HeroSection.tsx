@@ -55,7 +55,7 @@ export function HeroSection() {
                   Start Shopping <ArrowRight size={16} />
                 </motion.button>
               </Link>
-              <Link href="/seller/register">
+              <Link href="/seller">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

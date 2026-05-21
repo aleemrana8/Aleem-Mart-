@@ -43,6 +43,24 @@ export const sendVerificationEmail = async (email: string, token: string): Promi
   });
 };
 
+export const sendOTPEmail = async (email: string, otp: string): Promise<void> => {
+  await sendEmail({
+    to: email,
+    subject: 'Your OTP Code - Aleem Mart',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #1a1a2e; text-align: center;">Aleem Mart</h1>
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; text-align: center; margin: 20px 0;">
+          <p style="color: #666; margin-bottom: 10px;">Your verification code is:</p>
+          <h2 style="font-size: 36px; letter-spacing: 8px; color: #e94560; margin: 10px 0;">${otp}</h2>
+          <p style="color: #999; font-size: 13px;">This code expires in 10 minutes</p>
+        </div>
+        <p style="color: #666; font-size: 13px; text-align: center;">If you didn't request this code, please ignore this email.</p>
+      </div>
+    `,
+  });
+};
+
 export const sendPasswordResetEmail = async (email: string, token: string): Promise<void> => {
   const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
   await sendEmail({

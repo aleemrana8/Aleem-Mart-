@@ -22,10 +22,10 @@ export function FlashSale() {
   }, []);
 
   const flashItems = [
-    { id: '1', title: 'TWS Earbuds Pro', price: 2999, originalPrice: 7999, discount: 63, sold: 78 },
-    { id: '2', title: 'Smart Band Fitness', price: 1499, originalPrice: 4999, discount: 70, sold: 92 },
-    { id: '3', title: 'Phone Case Premium', price: 499, originalPrice: 1499, discount: 67, sold: 156 },
-    { id: '4', title: 'USB-C Charger 65W', price: 1999, originalPrice: 4499, discount: 56, sold: 45 },
+    { id: 'the-ordinary-niacinamide-serum', title: 'Niacinamide Serum', price: 1499, originalPrice: 2499, discount: 40, sold: 78 },
+    { id: 'jbl-flip-6-portable-speaker', title: 'JBL Flip 6 Speaker', price: 9999, originalPrice: 12999, discount: 23, sold: 92 },
+    { id: 'ps5-dualsense-wireless-controller', title: 'PS5 DualSense Controller', price: 9999, originalPrice: 12999, discount: 23, sold: 156 },
+    { id: 'cerave-moisturizing-cream-539g', title: 'CeraVe Cream 539g', price: 3499, originalPrice: 4999, discount: 30, sold: 45 },
   ];
 
   return (
@@ -86,7 +86,7 @@ export function FlashSale() {
         </div>
 
         <div className="text-center mt-8">
-          <Link href="/flash-sale" className="inline-flex items-center px-6 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted/60 transition-colors">
+          <Link href="/shop?sort=-discount" className="inline-flex items-center px-6 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted/60 transition-colors">
             View All Flash Deals
           </Link>
         </div>

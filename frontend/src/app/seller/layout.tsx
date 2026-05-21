@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Package, ShoppingCart, Tags, BarChart3,
-  MessageSquare, Settings, Star, Truck, Store, Plus, Menu, X
+  MessageSquare, Settings, Star, Truck, Store, Plus, Menu, X, Home
 } from 'lucide-react';
 
 const sellerNav = [
@@ -56,10 +56,14 @@ export default function SellerLayout({ children }: { children: ReactNode }) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-border/50">
+      <div className="p-4 border-t border-border/50 space-y-2">
         <Link href="/seller/products/new" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 w-full btn-premium px-4 py-2.5 text-sm font-medium justify-center">
           <Plus size={16} />
           Add Product
+        </Link>
+        <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-medium justify-center text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/60">
+          <Home size={16} />
+          Back to Store
         </Link>
       </div>
     </>

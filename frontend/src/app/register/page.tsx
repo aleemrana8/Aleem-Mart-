@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, User, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function RegisterPage() {
@@ -11,7 +11,6 @@ export default function RegisterPage() {
   const { register, isLoading } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -29,30 +28,11 @@ export default function RegisterPage() {
     }
     try {
       await register(formData);
-      setSuccess(true);
+      router.push(formData.role === 'seller' ? '/seller' : '/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
     }
   };
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="w-full max-w-sm text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
-            <CheckCircle size={32} className="text-success" />
-          </div>
-          <h1 className="text-xl font-bold text-foreground">Check Your Email</h1>
-          <p className="text-sm text-muted-foreground">
-            We sent a verification link to <strong className="text-foreground">{formData.email}</strong>. Click the link to verify your account.
-          </p>
-          <Link href="/login" className="btn-premium inline-flex px-6 py-3 text-sm font-semibold mt-4">
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
@@ -69,7 +49,6 @@ export default function RegisterPage() {
             <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-xl mb-4">{error}</div>
           )}
 
-          {/* Role Selection */}
           <div className="flex gap-1 bg-muted/30 p-1 rounded-xl mb-6">
             <button
               type="button"

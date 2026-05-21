@@ -9,11 +9,11 @@ import {
   getBestSellers,
   getNewArrivals,
 } from '../controllers/product.controller';
-import { protect, authorize } from '../middleware/auth';
+import { protect, authorize, optionalProtect } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', getProducts);
+router.get('/', optionalProtect, getProducts);
 router.get('/featured', getFeaturedProducts);
 router.get('/best-sellers', getBestSellers);
 router.get('/new-arrivals', getNewArrivals);

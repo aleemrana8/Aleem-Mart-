@@ -1,9 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
+import { Heart, ShoppingCart, Star, Eye, Check } from 'lucide-react';
 import { formatPrice, getDiscountPercentage } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useCartStore } from '@/store/useCartStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   product: {
@@ -24,16 +29,37 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
   const discount = product.comparePrice
     ? getDiscountPercentage(product.price, product.comparePrice)
     : 0;
+  const { addToCart } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) { router.push('/login'); return; }
+    try {
+      await addToCart(product.id);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1500);
+    } catch (err) {
+      console.error('Add to cart failed');
+    }
+  };
 
   return (
     <div className="group relative bg-card rounded-2xl border border-border/50 hover:border-border hover:shadow-card-hover transition-all duration-300 overflow-hidden">
       {/* Image */}
       <Link href={`/product/${product.slug}`} className="block relative">
         <div className={cn(
-          'relative w-full bg-muted/30 flex items-center justify-center overflow-hidden',
+          'relative w-full bg-muted/30 overflow-hidden',
           variant === 'compact' ? 'h-40' : 'h-48 sm:h-56'
         )}>
-          <div className="text-4xl group-hover:scale-110 transition-transform duration-500 ease-out-expo">🛍️</div>
+          {product.images?.[0] ? (
+            <Image src={product.images[0]} alt={product.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, 33vw" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-4xl">🛍️</div>
+          )}
         </div>
         
         {/* Discount badge */}
@@ -96,10 +122,9 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
         {/* Add to Cart */}
         <button
           className="w-full mt-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0"
-          onClick={(e) => { e.preventDefault(); }}
+          onClick={handleAddToCart}
         >
-          <ShoppingCart size={14} />
-          Add to Cart
+          {added ? <><Check size={14} /> Added!</> : <><ShoppingCart size={14} /> Add to Cart</>}
         </button>
       </div>
     </div>

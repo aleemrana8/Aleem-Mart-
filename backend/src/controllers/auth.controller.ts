@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import User from '../models/User';
 import { generateToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
-import { sendVerificationEmail, sendPasswordResetEmail, sendEmail } from '../utils/email';
+import { sendPasswordResetEmail, sendEmail } from '../utils/email';
 import { AuthRequest } from '../middleware/auth';
 
 export const register = async (req: Request, res: Response) => {
@@ -14,22 +14,14 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-
     const user = await User.create({
       firstName,
       lastName,
       email,
       password,
       role: role === 'seller' ? 'seller' : 'buyer',
-      verificationToken,
+      isVerified: true,
     });
-
-    try {
-      await sendVerificationEmail(email, verificationToken);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-    }
 
     const token = generateToken(user._id.toString());
     const refreshToken = generateRefreshToken(user._id.toString());
@@ -47,33 +39,39 @@ export const register = async (req: Request, res: Response) => {
           lastName: user.lastName,
           email: user.email,
           role: user.role,
-          isVerified: user.isVerified,
+          isVerified: true,
         },
         token,
         refreshToken,
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Registration failed', error });
+    console.error('Register error:', error);
+    res.status(500).json({ success: false, message: 'Registration failed' });
   }
 };
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    const user = await User.findOne({ email }).select('+password');
+    // Find or create user - no real auth for now
+    let user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      user = await User.create({
+        firstName: email.split('@')[0],
+        lastName: 'User',
+        email,
+        password: password || 'temp12345',
+        role: role === 'seller' ? 'seller' : 'buyer',
+        isVerified: true,
+      });
     }
 
-    if (!user.isActive) {
-      return res.status(403).json({ success: false, message: 'Account is suspended' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    // Update role if requested
+    if (role && user.role !== role && role !== 'admin') {
+      user.role = role as any;
+      await user.save();
     }
 
     const token = generateToken(user._id.toString());
@@ -82,13 +80,6 @@ export const login = async (req: Request, res: Response) => {
     user.refreshToken = refreshToken;
     user.lastLogin = new Date();
     await user.save();
-
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
 
     res.json({
       success: true,
@@ -100,13 +91,14 @@ export const login = async (req: Request, res: Response) => {
           email: user.email,
           role: user.role,
           avatar: user.avatar,
-          isVerified: user.isVerified,
+          isVerified: true,
         },
         token,
         refreshToken,
       },
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ success: false, message: 'Login failed', error });
   }
 };

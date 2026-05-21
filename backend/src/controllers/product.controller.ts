@@ -1,5 +1,7 @@
 import { Response } from 'express';
 import Product from '../models/Product';
+import '../models/Store';
+import '../models/Category';
 import { AuthRequest } from '../middleware/auth';
 import { generateSlug, generateSKU, paginate, buildPaginationResponse } from '../utils/helpers';
 
@@ -25,7 +27,13 @@ export const getProducts = async (req: AuthRequest, res: Response) => {
     if (category) filter.category = category;
     if (subcategory) filter.subcategory = subcategory;
     if (brand) filter.brand = brand;
-    if (seller) filter.seller = seller;
+    if (seller === 'me' && req.user?._id) {
+      filter.seller = req.user._id;
+      delete filter.isActive;
+      delete filter.status;
+    } else if (seller) {
+      filter.seller = seller;
+    }
     if (status) filter.status = status;
     if (minPrice || maxPrice) {
       filter.price = {};
